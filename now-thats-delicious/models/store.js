@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 const slug = require("slugs");
 
+//By default create a strict schema (don't allow any other keys/values)
 const storeSchema = new mongoose.Schema({
   name: {
     type: String,
