@@ -10,7 +10,7 @@ exports.addStore = (req, res) => {
 };
 
 //In order to catch errors in async/await, the usual solution is to wrap it entirely in a try/catch
-//However, we can use 'composition' to wrap creatStore() to handle our error handling
+//However, we can use 'composition' to wrap createStore() to handle our error handling
 exports.createStore = async (req, res) => {
   const store = await new Store(req.body).save();
   req.flash(

@@ -19,10 +19,9 @@ const storeSchema = new mongoose.Schema({
 
 //TODO: Force unique slugs
 storeSchema.pre("save", function(next) {
-  if (!this.isModified("name")) {
-    //Skip it and stop this function
-    return next();
-  }
+  //Skip it and stop this function
+  if (!this.isModified("name")) return next();
+  //Create the slug
   this.slug = slug(this.name);
   next();
 });
