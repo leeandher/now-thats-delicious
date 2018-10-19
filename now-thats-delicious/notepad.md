@@ -56,17 +56,6 @@ router.post("/add", storeController.addStore);
 
 ---
 
-## Middleware and Error Handling
-
-```javascript
-//TODO
-// - app.use() (global middleware)
-// - next() sequential middleware
-// - after request, before response
-```
-
----
-
 ## Templating, Helpers and Mixins
 
 **Templates** are a useful way to write reusable markup. For this app, the templating language used is `pug` (or formerly known as `jade`). which was chosen for its seemless integration with JavaScript.
@@ -146,24 +135,93 @@ mixin storeForm(store = '')
 
 ## MVC and Controllers
 
-MVC programming is a code architecture concept. It stands for **Model**, **View**, **Controller**. It outlines a way of developing applications to process logic and display content to end users by separating the code into three distinct areas
+MVC programming is a code architecture concept. It stands for **Model**, **View**, **Controller**. It outlines a way of developing applications to process logic and display content to end users by separating the code into three distinct areas.
 
-### Model
+The **model** refers to the code layer which performs operations on the backend. This can be the seen as the requests for fetching/querying the database. In an analogy, the model is the _pizza place_.
 
-The model refers to the diagram, or blue-print of the app. This could be seen as the database schema, or the routing.
+The **view** is what the user sees. We think of the view as the templates and display. For the purpose of this application, these are the `.pug` files. We must display all of our information back to the user through the view. In an analogy, the view is _your apartment_.
 
-```javascript
-//TODO
-```
+The **controller** is the bridge between the **model** and the **view**. It gets data from the model, then passes it on to the view. In an analogy, the controller is the _delivery driver_.
 
-### View
+//Analogy
 
-```javascript
-//TODO
-```
-
-### Controller
+By keeping the controllers seperate from the model and view, we allow for a modular application, with reusable bits of code. We can create a controller by creating a seperate file and exporting its functionality:
 
 ```javascript
-//TODO
+/*  ---- Model ----  */
+const storeContoller = require("./storeController");
+
+router.get("/", storeController.homepage);
+router.get("/add", storeController.addStore);
+
+/*  ---- View ----  */
+index.pug;
+editStore.pug;
+
+/*  ---- Controller ----  */
+exports.homePage = (req, res) => {
+  res.render("index");
+};
+
+exports.addStore = (req, res) => {
+  res.render("editStore", { ...params });
+};
 ```
+
+---
+
+## Middleware and Error Handling
+
+**Middleware** is a term used to refer to the processing or functionality that goes on _after_ the request, but _before_ the response. Middleware is the main way of performing bulk operations through express, and it's passed simply as just another parameter to a normal controller function. Take the following code as an example.
+
+```javascript
+//Within the exampleController.js file
+exports.myMiddleware = (req, res, next) => {
+  req.myMiddleWareVariable = "Example";
+  console.log("This is an");
+  next();
+};
+
+exports.myResponse = (req, res, next) => {
+  console.log(req.myMiddleWareVariable);
+  res.send("Finished");
+};
+
+//Then we would call upon the middleware as shown:
+//router.get(route, controller)
+router.get(
+  "/example",
+  exampleController.myMiddleWare,
+  exampleController.myResponse
+);
+
+//When navigating to the route /example
+//  -> console: This is an
+//  -> console: Example
+//  -> page: Finished
+```
+
+That is an example of route-specific middleware, but Express also has the capability for global middleware. This allows every single request to pass through the same middleware, enabling application-wide functionality.
+
+This is called through the function `app.use()`.
+
+```javascript
+//app.use(middlewareFunction)
+app.use(setTheseVariables);
+app.use(gatherTheseStaticAssets);
+app.use(makeThisDBFolder);
+```
+
+We can use middleware for **error handling** as well. If we queue up a bunch of functions to run before a certain operation, we can handle the edge cases on returns. For example:
+
+```javascript
+//All routes starting at /admin use the adminRoutes router
+const adminRoutes = require("./adminRoutes");
+// app.use("/", routes);
+app.use("/admin", adminRoutes);
+app.use(errorHandlers.notFound);
+```
+
+Since that line is commented, if we navigate to anything other than `localhost:PORT/admin`, we will run into the fallback error handler: `errorHandlers.notFound`.
+
+---
