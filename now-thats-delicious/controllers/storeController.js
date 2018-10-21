@@ -39,13 +39,15 @@ exports.editStore = async (req, res) => {
 };
 
 exports.updateStore = async (req, res) => {
-  //1. Find the store, given the ID, and Update
+  //1. Set the location data to be a point
+  req.body.locaation.type = "Point";
+  //2. Find the store, given the ID, and Update
   //.findOneAndUpdate(query, update, {...options})
   const store = await Store.findOneAndUpdate({ _id: req.params.id }, req.body, {
     new: true, //Return the new store, not the old one
     runValidators: true //Run the required validators against the model
   }).exec();
-  //2. Redirect them to the store edit page, telling them it worked
+  //3. Redirect them to the store edit page, telling them it worked
   req.flash(
     "success",
     `Successfully updated <strong>${store.name}</strong>. <a href="/stores/${
