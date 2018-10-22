@@ -26,4 +26,7 @@ router.post(
 //Show the existing store page
 router.get("/stores/:id/edit", catchErrors(storeController.editStore));
 
+//Show the store page
+router.get("/stores/:slug", catchErrors(storeController.getStoreBySlug));
+
 module.exports = router;

@@ -28,9 +28,8 @@ exports.upload = multer(multerOptions).single("photo");
 
 exports.resize = async (req, res, next) => {
   //Check if there is no new file to resize
-  if (!req.file) {
-    return next(); //Skip to the next middleware
-  }
+  if (!req.file) return next(); //Skip to the next middleware
+
   const extension = req.file.mimetype.split("/")[1];
   req.body.photo = `${uuid.v4()}.${extension}`;
   //Next step, resize
@@ -59,6 +58,15 @@ exports.getStores = async (req, res) => {
   //1. Query the DB for the list of all stores
   const stores = await Store.find();
   res.render("stores", { title: "Stores", stores });
+};
+
+exports.getStoreBySlug = async (req, res, next) => {
+  //1. Find the store, given the slug
+  const store = await Store.findOne({ slug: req.params.slug });
+  //2. If no store was found, skip to error handling
+  if (!store) return next();
+  //3. Render the store page
+  res.render("store", { title: store.name, store });
 };
 
 exports.editStore = async (req, res) => {
