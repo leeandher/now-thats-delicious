@@ -33,7 +33,7 @@ Routing is the way of sending our app/user different sets of data based on the U
 
 The router let's us specify the file path, and the type of request, followed by what to do with it. See the following:
 
-```javascript
+```js
 const router = express.Router();
 //Perform this function for GET requests on homepage
 router.get("/", (req, res, next) => {
@@ -58,11 +58,11 @@ router.post("/add", storeController.addStore);
 
 ## Templating, Helpers and Mixins
 
-**Templates** are a useful way to write reusable markup. For this app, the templating language used is `pug` (or formerly known as `jade`). which was chosen for its seemless integration with JavaScript.
+**Templates** are a useful way to write reusable markup. For this app, the templating language used is `pug` (or formerly known as `jade`). which was chosen for its seemless integration with js.
 
 The syntax of the templating language depends on which is chosen, but regardless, the core concept is the same; create a page which can accept data to dynamically create a new page.
 
-```javascript
+```js
 //Use pug as the template engine
 app.set("view engine", "pug");
 
@@ -86,14 +86,14 @@ block content //Change the 'content' block of layout.pug to the following markup
 
 In order to create your own helpers, simple put them in a `helpers.js` file as:
 
-```javascript
+```js
 exports.example = "example value";
 exports.dump = obj => JSON.stringify(obj, null, 2);
 ```
 
 or something of the sort. Then, using middleware, they can be used in Express:
 
-```javascript
+```js
 //Import the file
 const helpers = require("./helpers.js");
 
@@ -147,7 +147,7 @@ The **controller** is the bridge between the **model** and the **view**. It gets
 
 By keeping the controllers seperate from the model and view, we allow for a modular application, with reusable bits of code. We can create a controller by creating a seperate file and exporting its functionality:
 
-```javascript
+```js
 /*  ---- Model ----  */
 const storeContoller = require("./storeController");
 
@@ -174,7 +174,7 @@ exports.addStore = (req, res) => {
 
 **Middleware** is a term used to refer to the processing or functionality that goes on _after_ the request, but _before_ the response. Middleware is the main way of performing bulk operations through express, and it's passed simply as just another parameter to a normal controller function. Take the following code as an example.
 
-```javascript
+```js
 //Within the exampleController.js file
 exports.myMiddleware = (req, res, next) => {
   req.myMiddleWareVariable = "Example";
@@ -205,7 +205,7 @@ That is an example of route-specific middleware, but Express also has the capabi
 
 This is called through the function `app.use()`.
 
-```javascript
+```js
 //app.use(middlewareFunction)
 app.use(setTheseVariables);
 app.use(gatherTheseStaticAssets);
@@ -214,7 +214,7 @@ app.use(makeThisDBFolder);
 
 We can use middleware for **error handling** as well. If we queue up a bunch of functions to run before a certain operation, we can handle the edge cases on returns. For example:
 
-```javascript
+```js
 //All routes starting at /admin use the adminRoutes router
 const adminRoutes = require("./adminRoutes");
 // app.use("/", routes);

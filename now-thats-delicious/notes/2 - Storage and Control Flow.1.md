@@ -6,9 +6,9 @@ _A compliation of useful notes and tricks that could come in handy in the future
 
 ## Managing Models
 
-Models are created through the declaration of a database schema. Specifically for MongoDB, this can be done easily through the `mongoose` package. The `mongoose.Schema()` method will create a table schema through the object which you pass to, defaulting to strict mode. Here's an example:
+Models are created through the declaration of a database schema. Specifically for MongoDB, this can be done easily through the `mongoose` package. The `mongoose.Schema()` method will create a table schema through the object which you pass to, defaulting to _strict_ mode. Here's an example:
 
-```javascript
+```js
 const mongoosee = require("mongoose"); //Import the mongoose package
 mongoose.Promise = global.Promise; //Tell mongoose to use the global Promise object on it's DB interactions
 const storeSchema = new mongoose.Schema({
@@ -28,9 +28,9 @@ const storeSchema = new mongoose.Schema({
 module.exports = mongoose.model("Store", storeSchema);
 ```
 
-Models can also perform helpful operations on the data which is passed to it, depending on the action which is take. For example, the following snippet takes effect before the `.save()` metho is called on the `storeSchema`. If the `name` of the store has been modified, then create the slug, and move on.
+Models can also perform helpful operations on the data which is passed to it, depending on the action which is take. For example, the following snippet takes effect before the `.save()` method is called on the `storeSchema`. If the `name` of the store has been modified, then create the slug, and move on.
 
-```javascript
+```js
 //The save method creates an entry in the storeSchema table
 storeSchema.pre("save", function(next) {
   //Skip it and stop this function
@@ -43,9 +43,9 @@ storeSchema.pre("save", function(next) {
 
 ## Async/Await
 
-Since JavaScript is an asynchronous scripting language, making requests to external resources is a problem, especially if multiple need to be made before any sort of user response. Modern javascript is way past _[Callback Hell](http://callbackhell.com/)_, since the introduction of the `global.Promise` object. Now, in order to make a bunch of calls, you can simply chain them:
+Since JavaScript is an asynchronous scripting language, making requests to external resources is a problem, especially if multiple need to be made before any sort of user response. Modern JavaScript is way past _[Callback Hell](http://callbackhell.com/)_, since the introduction of the `global.Promise` object. Now, in order to make a bunch of calls, you can simply chain them:
 
-```javascript
+```js
 doSomething()
   .then(function(result) {
     return doSomethingElse(result);
@@ -59,11 +59,11 @@ doSomething()
   .catch(failureCallback);
 ```
 
-<small>Example credits to [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises)</small>
+<small>Example credits to [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/JavasScript/Guide/Using_promises)</small>
 
-But even this can get pretty confusing pretty fast. Another way to handle this is with `async` and `await` notation. To use this notation, preface the asyncronous function with the keyword `async` to denote the fact that a promise will be taking place inside. Then, simply put the keyword `await` infront of the call, in order to tell JavaScript not to continue until this response is completed.
+But even this can get pretty confusing pretty fast. Another way to handle this is with `async` and `await` notation. To use this notation, preface the asyncronous function with the keyword `async` to denote the fact that a promise will be taking place inside. Then, simply put the keyword `await` infront of the call, in order to tell js not to continue until this response is completed.
 
-```javascript
+```js
 //The finished message ill only log after the new store has been saved
 exports.createStore = async (req, res) => {
   const store = new Store(req.body);
@@ -74,7 +74,7 @@ exports.createStore = async (req, res) => {
 
 There is a trade off however; the error handling, which is critical when depending on external resources. Since physically impossible to write code without errors in it, the `async/await` calls need to be `try`'d in order to `catch` any errors in reading/writing to the database or API. This is because there is no callback function which naturally catches the error. However, there is a way of conveniently catching errors using a helper function.
 
-```javascript
+```js
 //This function is middlewawre which accepts a function
 exports.catchErrors = fn => {
   //It then returns the output to a 'parent' function
@@ -94,7 +94,7 @@ The MVC design pattern is really helpful for developing a clean modular codebase
 
 1. Create the route for the process initiation. This would cover the exact URL (ex. `stores/create`, as well as the action, `get` or `post`)
 
-```javascript
+```js
 const express = require("express");
 const router = express.Router();
 
@@ -103,12 +103,12 @@ router.get("/add", placeholderController);
 
 2. Create (and handle errors) for operations through the appropriate controller (ex. group all the actions related to store management under `storeController.js`)
 
-```javascript
+```js
 const storeController = require("../controllers/storeController");
 router.get("/add", catchErrors(storeController.addStore));
 ```
 
-```javascript
+```js
 //Within storeController.js
 exports.addStore = async (req, res) => {
   // some functionality...
@@ -119,7 +119,7 @@ exports.addStore = async (req, res) => {
 
 3. Create/Use the appropriate template to render the request (ex)
 
-```javascript
+```js
 //Within storeController.js
 exports.addStore = async (req, res) => {
   // some functionality...
