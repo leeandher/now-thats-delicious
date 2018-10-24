@@ -38,12 +38,19 @@ const storeSchema = new mongoose.Schema({
   photo: String
 });
 
-//TODO: Force unique slugs
-storeSchema.pre("save", function(next) {
+storeSchema.pre("save", async function(next) {
   //Skip it and stop this function
   if (!this.isModified("name")) return next();
+
   //Create the slug
   this.slug = slug(this.name);
+
+  //Find other stores that have an existing slug (and their numerations)
+  const slugRegExp = new RegExp(`^(${this.slug})((-[0-9]*$)?)$`, "i"); //Create the search RegExp
+  const storesWithSlug = await this.constructor.find({ slug: slugRegExp }); //Create an array of all matches
+  if (storesWithSlug.length) {
+    this.slug = `${this.slug}-${storesWithSlug.length + 1}`; //Add the appropriate number to the end of the slug
+  }
   next();
 });
 

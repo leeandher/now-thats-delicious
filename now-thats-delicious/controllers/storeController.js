@@ -51,7 +51,7 @@ exports.createStore = async (req, res) => {
     }</strong>. Care to leave a review?`
   );
 
-  res.redirect(`/store/${store.slug}`);
+  res.redirect(`/stores/${store.slug}`);
 };
 
 exports.getStores = async (req, res) => {
@@ -64,6 +64,7 @@ exports.getStoreBySlug = async (req, res, next) => {
   //1. Find the store, given the slug
   const store = await Store.findOne({ slug: req.params.slug });
   //2. If no store was found, skip to error handling
+  console.log("finding the store", JSON.stringify(store));
   if (!store) return next();
   //3. Render the store page
   res.render("store", { title: store.name, store });
