@@ -29,4 +29,9 @@ router.get("/stores/:id/edit", catchErrors(storeController.editStore));
 //Show the store page
 router.get("/stores/:slug", catchErrors(storeController.getStoreBySlug));
 
+//Show the tags apge
+router.get("/tags/", catchErrors(storeController.getStoresByTag));
+//Filter tags by specific tag
+router.get("/tags/:tag", catchErrors(storeController.getStoresByTag));
+
 module.exports = router;
