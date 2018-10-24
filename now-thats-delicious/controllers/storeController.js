@@ -71,9 +71,20 @@ exports.getStoreBySlug = async (req, res, next) => {
 };
 
 exports.getStoresByTag = async (req, res, next) => {
-  const tags = await Store.getTagsList();
+  //The given tag
   const tag = req.params.tag;
-  res.render("tag", { title: "Tags", tags, tag });
+  //If no given tag, look for all stores with any tag
+  const tagQuery = tag || { $exists: true };
+
+  //Create the promises
+  const tagsPromise = Store.getTagsList(); //To find tags, and their counts
+  const storesPromise = Store.find({ tags: tagQuery }); //To find stores by the tagQuery
+
+  //await both Promises in parallel
+  const [tags, stores] = await Promise.all([tagsPromise, storesPromise]);
+
+  //Render the tag page with all the queried info
+  res.render("tag", { title: "Tags", tags, tag, stores });
 };
 
 exports.editStore = async (req, res) => {
