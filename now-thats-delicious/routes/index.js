@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const storeController = require("../controllers/storeController");
+const userController = require("../controllers/userController");
 
 const { catchErrors } = require("../handlers/errorHandlers");
 
@@ -33,5 +34,20 @@ router.get("/stores/:slug", catchErrors(storeController.getStoreBySlug));
 router.get("/tags/", catchErrors(storeController.getStoresByTag));
 //Filter tags by specific tag
 router.get("/tags/:tag", catchErrors(storeController.getStoresByTag));
+
+router.get("/register", userController.registerForm);
+router.post(
+  "/register",
+  userController.validateRegister,
+  // userController.register
+);
+//Validate the registration data
+//Register the user
+//Log them in
+
+//TODO Ensure a bad login does not clear form
+
+router.get("/login", userController.loginForm);
+router.post("/login", userController.loginForm);
 
 module.exports = router;
