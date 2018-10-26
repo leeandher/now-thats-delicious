@@ -13,6 +13,8 @@ const routes = require("./routes/index");
 const helpers = require("./helpers");
 const errorHandlers = require("./handlers/errorHandlers");
 
+require("./handlers/passport"); //Invoke the code within passport.js
+
 // create our Express app
 const app = express();
 

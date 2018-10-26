@@ -1,4 +1,7 @@
 const mongoose = require("mongoose");
+const promisify = require("es6-promisify");
+
+const User = mongoose.model("User");
 
 exports.loginForm = (req, res) => {
   res.render("login", { title: "Login" });
@@ -6,6 +9,17 @@ exports.loginForm = (req, res) => {
 
 exports.registerForm = (req, res) => {
   res.render("register", { title: "Register" });
+};
+
+exports.register = async (req, res, next) => {
+  //Create the user
+  const user = new User({ name: req.body.name, email: req.body.email });
+  //.register(createdUser, password, callback)
+  //User.register(user, req.body.password, function(err, user) {});
+  //Since .register returns a callback, we need to turn it into a promise and await that
+  const register = promisify(User.register, User);
+  await register(user, req.body.password);
+  next(); //pass to authController.login
 };
 
 exports.validateRegister = (req, res, next) => {
@@ -37,8 +51,4 @@ exports.validateRegister = (req, res, next) => {
   }
 
   next();
-};
-
-exports.register = async (req, res, next) => {
-  //Create the user
 };
