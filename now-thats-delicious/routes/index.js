@@ -10,7 +10,7 @@ const { catchErrors } = require("../handlers/errorHandlers");
 router.get("/", catchErrors(storeController.getStores));
 router.get("/stores", catchErrors(storeController.getStores));
 //Navigating to /add
-router.get("/add", storeController.addStore);
+router.get("/add", authController.isLoggedIn, storeController.addStore);
 //Posting to create a store on /add
 router.post(
   "/add",
@@ -43,13 +43,30 @@ router.post(
   userController.register,
   authController.login
 );
-//Validate the registration data
-//Register the user
-//Log them in
+
+router.get("/logout", authController.logout);
 
 //TODO Ensure a bad login does not clear form
 
 router.get("/login", userController.loginForm);
-router.post("/login", userController.loginForm);
+router.post("/login", authController.login);
+
+router.get("/account", authController.isLoggedIn, userController.account);
+router.post("/account", catchErrors(userController.updateAccount));
+
+router.post("/account/forgot", catchErrors(authController.forgot));
+router.get(
+  "/account/reset/:token",
+  catchErrors(authController.verifyResetToken),
+  authController.resetForm
+);
+router.post(
+  "/account/reset/:token",
+  authController.confirmedPasswords,
+  catchErrors(authController.verifyResetToken),
+  catchErrors(authController.updatePassword)
+);
+
+// router;
 
 module.exports = router;

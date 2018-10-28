@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Store = mongoose.model("Store");
+
 const multer = require("multer"); //For uploading
 const jimp = require("jimp"); //For resizing
 const uuid = require("uuid"); //For generating unique IDs
