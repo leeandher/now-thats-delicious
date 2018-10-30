@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 
-const md5 = require("md5");
-const validator = require("validator");
+const md5 = require("md5"); //Creates email hash
+const validator = require("validator"); //Validates input
 const mongodbErrorHandler = require("mongoose-mongodb-errors");
 const passportLocalMongoose = require("passport-local-mongoose");
 
@@ -30,9 +30,11 @@ userSchema.virtual("gravatar").get(function() {
 });
 
 //passportLocalMongoose
-// --> .register() (see userController.js)
-// --> .createStategy() method (see passport.js)
+//Adds a bunch of custom methods to our User schema
+//usernameField specifies which field on our schema to use for login
 userSchema.plugin(passportLocalMongoose, { usernameField: "email" });
+
+//Cleans up how the userSchema.emmail.validate error looks when conflicted with {unique: true}
 userSchema.plugin(mongodbErrorHandler);
 
 module.exports = mongoose.model("User", userSchema);

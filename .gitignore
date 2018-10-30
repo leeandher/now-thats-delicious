@@ -4,6 +4,7 @@ node_modules/
 .idea
 
 haters/
+
 variables.env
 /public/uploads/*.png
 /public/uploads/*.jpeg

@@ -41,6 +41,20 @@ storeSchema.pre("save", function(next) {
 });
 ```
 
+There is a little bit to remember about creating models, you have to import them into your app atleast once. In this specific app, it is done in `start.js` with following line:
+
+```js
+require("./models/User");
+```
+
+Then, wherever the models are used, they can be imported similarly to any other node package with the following:
+
+```js
+const User = mongoose.model("User");
+```
+
+---
+
 ## Async/Await
 
 Since JavaScript is an asynchronous scripting language, making requests to external resources is a problem, especially if multiple need to be made before any sort of user response. Modern JavaScript is way past _[Callback Hell](http://callbackhell.com/)_, since the introduction of the `global.Promise` object. Now, in order to make a bunch of calls, you can simply chain them:
