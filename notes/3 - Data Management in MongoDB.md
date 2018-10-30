@@ -262,3 +262,32 @@ console.log("Compeleted data requests");
 **Important Note**: The `Promise.all` method will only work if all requests are independent from one another. If they rely on each other's resolved data, this will not work.
 
 ---
+
+## Virtual Fields
+
+Another useful tool that can be used with MongoDB is a feature known as _Virtual Fields_. These are fields that are not explicitly stated in the schema, and contain data that can actually be inferred from the existing data. These aren't required but can make your life a lot easier the more complicated the models, and data you may work with.
+
+A simplified example would be a schema which contains items which each have an item `price`, and an item `quantity`. A useful virtual field would to explicitly declare the `total`, mainly just for code clarity and to ease functionality later on. This can be done as follows:
+
+```js
+const orderSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: 'Please provide an item name!'
+    trim: true
+  },
+  price {
+    type: Number,
+    required: 'Please enter a price!'
+  },
+  quantity: {
+    type: Number,
+    required: 'Please enter a quantity!'
+  }
+});
+
+orderSchema.virtual("total").get(function() {
+  //Return the total price rounded to two digits
+  return (this.quantity * this.price).toFixed(2);
+});
+```

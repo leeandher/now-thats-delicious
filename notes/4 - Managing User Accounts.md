@@ -55,36 +55,56 @@ Another note to keep in mind is that with the ability to sign-in, comes the need
 
 ---
 
-## User Account Specifics
+## Editing Account Data
 
-<!-- How to render the account info in the nav (locals)-->
-<!-- Virtual fields -->
-
-Another useful tool that can be used with MongoDB is a feature known as _Virtual Fields_. These are fields that are not explicitly stated in the schema, and contain data that can actually be inferred from the existing data. These aren't required but can make your life a lot easier the more complicated the models, and data you may work with.
-
-A simplified example would be a schema which contains items which each have an item `price`, and an item `quantity`. A useful virtual field would to explicitly declare the `total`, mainly just for code clarity and to ease functionality later on. This can be done as follows:
+We need to allow the user to modify the information they provided for their account (i.e. email or name, passwords are covered in the next note). This is actually pretty self explanatory, similar to editing any other piece of data, but just to drill it into memory, since can change many fields at any time, you just need to update the `document` using a field which cannot change. For MongoDB, this would be the `_id` field, which is automatically generated for every entry.
 
 ```js
-const orderSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: 'Please provide an item name!'
-    trim: true
-  },
-  price {
-    type: Number,
-    required: 'Please enter a price!'
-  },
-  quantity: {
-    type: Number,
-    required: 'Please enter a quantity!'
-  }
-});
+exports.updateAccount = async (req, res) => {
+  const updates = {
+    name: req.body.name,
+    email: req.body.email
+  };
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id }, //Query
+    { $set: updates }, //Updates
+    { new: true, runValidators: true, context: "query" } //Options
+  );
+  req.flash("success", "👍 Updated your profile! 👍");
+  res.redirect("back");
+};
+```
 
-orderSchema.virtual("total").get(function() {
-  //Return the total price rounded to two digits
-  return (this.quantity * this.price).toFixed(2);
+The `_id` is a point of reference, and we can change the values within that document as much as we want. The _options_ object let's you further specify some parameters. In this example `new` means that we should display the new data on the next response, `runValidators` checks the legitimacy of data (i.e. email format), and `context` is a mongoose-requirement, which can be read about more on the docs (along with some validation stuff) over [here](https://mongoosejs.com/docs/api.html).
+
+---
+
+## Dynamic Layouts
+
+Regardless of whether or not our user is signed in, in most cases we will display the same layout. There will be some differences, perhaps it says '_logout_' instead of '_login_', or there is an avatar where the register button used to be, but this doesn't merit copying 90% of the layout into another view (a seperate `.pug` file).
+We can programmatically determine whether the user is signed in by instantiating it as a global middleware with `app.use` as follows:
+
+```js
+app.use((req, res, next) => {
+  // res.locals.h = helpers; -> helpers within pug
+  // res.locals.flashes = req.flash(); -> flashing messages to the user
+  res.locals.user = req.user || null;
+  // res.locals.currentPath = req.path; -> gets the path of the view
+  next();
 });
 ```
 
-<!-- Editing the account data  -->
+This will set the `locals.user` object directly to the `user` object, which Passport.js creates, so that we can reference the user fields in our layouts. If no user is signed in, no worries, since Pug won't render the `null` values.
+
+```pug
+<!-- In a template -->
+if user
+  li.nav__item: a.nav__link(href="/hearts", class=(currentPath.startsWith('/hearts') ? 'nav__link--active' : ''))
+    != h.icon('heart')
+    span.heart-count #{user.hearts && user.hearts.length}
+  li.nav__item: a.nav__link(href="/logout", class=(currentPath.startsWith('/logout') ? 'nav__link--active' : ''))
+    != h.icon('logout')
+    span Logout
+  li.nav__item: a.nav__link(href="/account", class=(currentPath.startsWith('/account') ? 'nav__link--active' : ''))
+    img.avatar(src=user.avatar + '&d=retro')
+```

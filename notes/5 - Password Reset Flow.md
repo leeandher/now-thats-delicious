@@ -45,11 +45,11 @@ Step 1 is easy enough with the `mongoose` package using the `.findOne` method on
 //1. See if that user's email is in the DB
 const user = await User.findOne({ email: req.body.email }); //via the forgotForm
 if (!user) {
-    req.flash(
-        "error",
-        "🤷‍ Coudn't find an account associated with that email 🤷‍"
-    );
-    return res.redirect("/login");
+  req.flash(
+    "error",
+    "🤷‍ Coudn't find an account associated with that email 🤷‍"
+  );
+  return res.redirect("/login");
 }
 ```
 
@@ -97,15 +97,15 @@ The first thing we're going to want to do is setup the proper routing and outlin
 
 ```js
 router.get(
-    "/account/reset/:token",
-    catchErrors(authController.verifyResetToken),
-    authController.resetForm
+  "/account/reset/:token",
+  catchErrors(authController.verifyResetToken),
+  authController.resetForm
 );
 router.post(
-    "/account/reset/:token",
-    authController.confirmedPasswords,
-    catchErrors(authController.verifyResetToken),
-    catchErrors(authController.updatePassword)
+  "/account/reset/:token",
+  authController.confirmedPasswords,
+  catchErrors(authController.verifyResetToken),
+  catchErrors(authController.updatePassword)
 );
 ```
 
@@ -113,22 +113,22 @@ The validation middleware is the root of this functionality. It will take in the
 
 ```js
 exports.verifyResetToken = async (req, res, next) => {
-    //Find the user if the token is valid, and not expired
-    const user = await User.findOne({
-        resetPasswordToken: req.params.token,
-        resetPasswordExpires: { $gt: Date.now() }
-    });
-    if (!user) {
-        req.flash(
-            "error",
-            "🙅‍‍ ‍‍‍The password reset token is invalid or has expired! 🙅‍"
-        );
-        return res.redirect("/login");
-    }
+  //Find the user if the token is valid, and not expired
+  const user = await User.findOne({
+    resetPasswordToken: req.params.token,
+    resetPasswordExpires: { $gt: Date.now() }
+  });
+  if (!user) {
+    req.flash(
+      "error",
+      "🙅‍‍ ‍‍‍The password reset token is invalid or has expired! 🙅‍"
+    );
+    return res.redirect("/login");
+  }
 
-    //Attach the user to the request
-    res.locals.resetUser = user;
-    next(); //User & token have been verified!
+  //Attach the user to the request
+  res.locals.resetUser = user;
+  next(); //User & token have been verified!
 };
 ```
 
@@ -138,20 +138,20 @@ After running this validation, the `GET` route will display the fields for input
 
 ```js
 exports.updatePassword = async (req, res) => {
-    //Get the user from the verifyResetToken middleware
-    const user = res.locals.resetUser;
-    const setPassword = promisify(user.setPassword, user);
-    await setPassword(req.body.password);
-    //Get rid of the fields from MongoDB
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    const updatedUser = await user.save();
-    await req.login(updatedUser);
-    req.flash(
-        "success",
-        "😎 Your password has been reset, you are now logged in! 😎"
-    );
-    res.redirect("/");
+  //Get the user from the verifyResetToken middleware
+  const user = res.locals.resetUser;
+  const setPassword = promisify(user.setPassword, user);
+  await setPassword(req.body.password);
+  //Get rid of the fields from MongoDB
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  const updatedUser = await user.save();
+  await req.login(updatedUser);
+  req.flash(
+    "success",
+    "😎 Your password has been reset, you are now logged in! 😎"
+  );
+  res.redirect("/");
 };
 ```
 
