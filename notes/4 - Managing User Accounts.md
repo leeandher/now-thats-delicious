@@ -59,4 +59,32 @@ Another note to keep in mind is that with the ability to sign-in, comes the need
 
 <!-- How to render the account info in the nav (locals)-->
 <!-- Virtual fields -->
+
+Another useful tool that can be used with MongoDB is a feature known as _Virtual Fields_. These are fields that are not explicitly stated in the schema, and contain data that can actually be inferred from the existing data. These aren't required but can make your life a lot easier the more complicated the models, and data you may work with.
+
+A simplified example would be a schema which contains items which each have an item `price`, and an item `quantity`. A useful virtual field would to explicitly declare the `total`, mainly just for code clarity and to ease functionality later on. This can be done as follows:
+
+```js
+const orderSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: 'Please provide an item name!'
+    trim: true
+  },
+  price {
+    type: Number,
+    required: 'Please enter a price!'
+  },
+  quantity: {
+    type: Number,
+    required: 'Please enter a quantity!'
+  }
+});
+
+orderSchema.virtual("total").get(function() {
+  //Return the total price rounded to two digits
+  return (this.quantity * this.price).toFixed(2);
+});
+```
+
 <!-- Editing the account data  -->
