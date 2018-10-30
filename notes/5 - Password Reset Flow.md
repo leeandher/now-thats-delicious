@@ -91,4 +91,68 @@ Now, for Step 4, we just redirect the user to the `login` page while they wait o
 
 ## Reset Token Verification
 
-Inbetween Step 3 and 4, a lot of validation has to go on, besides just sending the email. We need to make sure that our randomly generated token, matches the token on their account from when they promtped the reset. After that, we need to ensure that the token isn't yet expired, followed by prompting them to enter/confirm a new password. To make things more complicated, in case there is anything wrong along the way, we need to handle and communicate those error to the user!
+Inbetween Step 3 and 4, a lot of validation has to go on, besides just sending the email. We need to make sure that our randomly generated token, matches the token on their account from when they promtped the reset. After that, we need to ensure that the token isn't yet expired, followed by prompting them to enter/confirm a new password. To make things more complicated, in case there is anything wrong along the way, we need to handle and communicate those errors to the user. In order to accomplish this, we need to string together middleware for validation, as well as some syntactic MongoDB queries to check the expiry.
+
+The first thing we're going to want to do is setup the proper routing and outline the middlewares we will need to use for security along the way. Since the token is dynamically generated, the link will also be dynamic, meaning we'll specify the token in our routes as follows:
+
+```js
+router.get(
+    "/account/reset/:token",
+    catchErrors(authController.verifyResetToken),
+    authController.resetForm
+);
+router.post(
+    "/account/reset/:token",
+    authController.confirmedPasswords,
+    catchErrors(authController.verifyResetToken),
+    catchErrors(authController.updatePassword)
+);
+```
+
+The validation middleware is the root of this functionality. It will take in the token from the URL (being emailed) and ensure that it belongs to a user, and is not expired. We do this with `mongoose` by making a query to our database to return the user with the specified token field. Since our registration workflow doesn't assign any values to these fields, they can only be generated when a user forgets their password.
+
+```js
+exports.verifyResetToken = async (req, res, next) => {
+    //Find the user if the token is valid, and not expired
+    const user = await User.findOne({
+        resetPasswordToken: req.params.token,
+        resetPasswordExpires: { $gt: Date.now() }
+    });
+    if (!user) {
+        req.flash(
+            "error",
+            "🙅‍‍ ‍‍‍The password reset token is invalid or has expired! 🙅‍"
+        );
+        return res.redirect("/login");
+    }
+
+    //Attach the user to the request
+    res.locals.resetUser = user;
+    next(); //User & token have been verified!
+};
+```
+
+This validation middleware uses the `$gt` mongoose expression in order to ensure that the token exists, and is not expired. In case you're wondering about the `req.params.token`, just for clarity, that's actually attached to the request as a paramater because it's a specified variable in the route.
+
+After running this validation, the `GET` route will display the fields for inputting/confirming the new password for the account. The `POST` route however, will have to update the hash/salt that are currently saved in the database, as well as handle clearing the used tokens from the user account.
+
+```js
+exports.updatePassword = async (req, res) => {
+    //Get the user from the verifyResetToken middleware
+    const user = res.locals.resetUser;
+    const setPassword = promisify(user.setPassword, user);
+    await setPassword(req.body.password);
+    //Get rid of the fields from MongoDB
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    const updatedUser = await user.save();
+    await req.login(updatedUser);
+    req.flash(
+        "success",
+        "😎 Your password has been reset, you are now logged in! 😎"
+    );
+    res.redirect("/");
+};
+```
+
+In this last piece of functionality, we are retreiving the `user` data from the previous middleware, and then setting the password to the new entry, just as we had when we originally `.save`d the user. In order to clear data fields from MongoDB, we have to set the desired fields to `undefined` and then save those changes. Once we're done with that, we can call `.login` thanks to Passport.js, and then redirect the user to the homepage, just so they don't have to sign in twice for no reason.
