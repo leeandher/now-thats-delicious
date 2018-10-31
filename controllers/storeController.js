@@ -50,6 +50,7 @@ exports.resize = async (req, res, next) => {
 //In order to catch errors in async/await, the usual solution is to wrap it entirely in a try/catch
 //However, we can use 'composition' to wrap createStore() to handle our error handling
 exports.createStore = async (req, res) => {
+  req.body.author = req.user._id; //Get the current user's id
   const store = await new Store(req.body).save();
   req.flash(
     "success",
@@ -69,7 +70,9 @@ exports.getStores = async (req, res) => {
 
 exports.getStoreBySlug = async (req, res, next) => {
   //1. Find the store, given the slug
-  const store = await Store.findOne({ slug: req.params.slug });
+  const store = await Store.findOne({ slug: req.params.slug }).populate(
+    "author"
+  );
   //2. If no store was found, skip to error handling
   console.log("finding the store", JSON.stringify(store));
   if (!store) return next();
@@ -94,11 +97,20 @@ exports.getStoresByTag = async (req, res, next) => {
   res.render("tag", { title: "Tags", tags, tag, stores });
 };
 
+const confirmOwner = (store, user) => {
+  return store.author.equals(user._id);
+  //Throwing an error will stop the request as well
+  // throw Error("You must own the store to edit it!");
+};
+
 exports.editStore = async (req, res) => {
   //1. Find the store, given the ID
   const store = await Store.findOne({ _id: req.params.id });
   //2. Confirm that the user is the owner of the store
-  //TO DO
+  if (!confirmOwner(store, req.user)) {
+    req.flash("error", "😵 You must own the store in order to edit it! 😵");
+    res.redirect("back");
+  }
   //3. Render the edit form for the specific store
   res.render("editStore", { title: `Edit ${store.name}`, store });
 };

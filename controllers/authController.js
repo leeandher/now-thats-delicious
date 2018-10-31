@@ -27,6 +27,7 @@ exports.isLoggedIn = (req, res, next) => {
     next(); //They are logged in
   } else {
     req.flash("error", "🛑 Sorry, you gotta log in first! 🛑");
+    res.redirect("back");
   }
 };
 
