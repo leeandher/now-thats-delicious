@@ -1,6 +1,7 @@
 const passport = require("passport");
 const crypto = require("crypto"); //Built-in sequence generator within Node.js
 const promisify = require("es6-promisify");
+const mail = require("../handlers/mail");
 
 const mongoose = require("mongoose");
 
@@ -52,8 +53,14 @@ exports.forgot = async (req, res) => {
   const resetURL = `http://${req.headers.host}/account/reset/${
     user.resetPasswordToken
   }`;
-  req.flash("success", `You have been sent a password reset link. ${resetURL}`);
-  //TODO: email
+  mail.send({
+    user,
+    resetURL,
+    subject: "Password Reset",
+    template: "password-reset"
+  });
+  req.flash("success", `You have been sent a password reset link.`);
+
   //4. Redirect them to the login page
   res.redirect("/login");
 };
