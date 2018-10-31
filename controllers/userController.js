@@ -22,6 +22,7 @@ exports.register = async (req, res, next) => {
   next(); //pass to authController.login
 };
 
+//These validation methods come from 'express-validator'
 exports.validateRegister = (req, res, next) => {
   req.sanitizeBody("name");
   req.checkBody("name", "You must supply a name!").notEmpty();

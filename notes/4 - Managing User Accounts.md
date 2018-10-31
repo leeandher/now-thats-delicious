@@ -41,9 +41,56 @@ userSchema.plugin(mongodbErrorHandler);
 
 This schema seems pretty complicated, but seemingly empty at the same time. The reason for this is the lack of password or passphrase or any verification field for the user. Well, this is actually completely handled by the `passport-local-mongoose` plugin which itself modifies our dchema behind-the-scenes to add in the `hash` and `salt` field, so that we never have to deal with the user's passwords.
 
+When we create our `.register` middleware, we can call these methods on our instance of the schema. In the following example, we can use the additional `promisify` library to get rid of the callback API, and still easy save the `req.body.password` field to our User database.
+
+```js
+exports.register = async (req, res, next) => {
+  //Create the user
+  const user = new User({ name: req.body.name, email: req.body.email });
+  //.register(createdUser, password, callback)
+  //User.register(user, req.body.password, function(err, user) {});
+  //Since .register returns a callback, we need to turn it into a promise and await that
+  const register = promisify(User.register, User);
+  await register(user, req.body.password);
+  next(); //pass to authController.login
+};
+```
+
+The reason we pass it a `next()` instead of simply redirecting somewhere is because Passport.js can be used for authentication in an easy manor, but, as we'll talk about later on, it makes our code more readable to keep authentication controls seperate.
+
 ---
 
-## Using Passport.js for Validation
+## Validating User Data
+
+Whenever we accept data from the user into a sensitive database (such as the `User` schema), we shoudld run validation on each of the queried fields. This is to prevent scoundrels from sending _copied emails_, and `<script>` tags, and other nonsense when they create their entries in our database. There is a really helpful library for this, called `express-validators` which can be globally imported for requests via `app.use()`.
+
+```js
+exports.validateRegister = (req, res, next) => {
+  req.sanitizeBody("name");
+  req.checkBody("name", "You must supply a name!").notEmpty();
+  req.checkBody("email", "That email is not valid!").isEmail();
+  req.sanitizeBody("email").normalizeEmail({
+    remove_dots: false,
+    remove_extension: false,
+    gmail_remove_subaddress: false
+  });
+
+  ...
+
+  const errors = req.validationErrors();
+  if (errors) {
+    req.flash("error", errors.map(err => err.msg));
+    res.render("register", {
+      title: "Register",
+      body: req.body,
+      flashes: req.flash()
+    });
+    return;
+  }
+  next();
+```
+
+These will throw errors into the `validationErrors()` function if anything goes arry, and if not, we'll just skip to the next middleware! This control function is also an example of self contained error handling rather than using `catchErrors` like we have been doing.
 
 ---
 
@@ -51,7 +98,34 @@ This schema seems pretty complicated, but seemingly empty at the same time. The 
 
 Another note to keep in mind is that with the ability to sign-in, comes the need to view and change profile data, register, validate the register data, and that can get pretty hairy. This is especially true when you take into account the need to interface with the database when authenticating the user login, logout and password resets. Therefore, to keep things distinct we write two seperate controllers: `authController.js` for handling profile authentication, and `userController.js` for handling individual user actions.
 
-<!-- //Logging in/out -->
+A lot of the methods you'd expect to find in the `authController` are simplified since we can call an import and use Passport.js globally through our `app.js` file.
+
+Now that we've set it up, we don't even have to think twice about setting logins and authentication, we can just use the methods in our `authController` and continue with developping our app. Lots of code incomming, but the gist of it is that we can write these controllers in very readable, clear code that take a lot of the messy work off our hands.
+
+```js
+//"local" --> type of strategy on Passport.js
+exports.login = passport.authenticate("local", {
+  failureRedirect: "/login",
+  failureFlash: "Failed Login!",
+  successRedirect: "/",
+  successFlash: "You are now logged in!"
+});
+
+exports.logout = (req, res) => {
+  req.logout();
+  req.flash("success", "👋 You are now logged out! 👋");
+  res.redirect("/");
+};
+
+exports.isLoggedIn = (req, res, next) => {
+  //Check if the user is authenticated
+  if (req.isAuthenticated()) {
+    next(); //They are logged in
+  } else {
+    req.flash("error", "🛑 Sorry, you gotta log in first! 🛑");
+  }
+};
+```
 
 ---
 
