@@ -1,9 +1,10 @@
-const nodemailer = require("nodemailer");
-const pug = require("pug");
-const juice = require("juice");
-const htmlToText = require("html-to-text");
-const promisify = require("es6-promisify");
+const nodemailer = require("nodemailer"); //Sends the email
+const pug = require("pug"); //Compiles the template
+const juice = require("juice"); //Inlines the CSS
+const htmlToText = require("html-to-text"); //Converts Email HTML to text
+const promisify = require("es6-promisify"); //Converts Callbacks to ES6 Promises
 
+//Create the nodemailer 'sender'
 const transport = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
   port: process.env.MAIL_PORT,
@@ -13,6 +14,7 @@ const transport = nodemailer.createTransport({
   }
 });
 
+//Send an email
 exports.send = async options => {
   const html = generateHTML(options.template, options);
   const text = htmlToText.fromString(html);
@@ -27,6 +29,7 @@ exports.send = async options => {
   return sendMail(mailOptions);
 };
 
+//Generate HTML via a template
 const generateHTML = (template, options = {}) => {
   const html = pug.renderFile(
     `${__dirname}/../views/email/${template}.pug`,
@@ -35,11 +38,3 @@ const generateHTML = (template, options = {}) => {
   const inlined = juice(html);
   return inlined;
 };
-
-// transport.sendMail({
-//   from: "Leander Rodrigues <me@leander.xyz>",
-//   to: "jordine.rae@gmail.com",
-//   subject: "Just trying things out!",
-//   html: "Hey I <strong>love</strong> you!",
-//   text: "Hey I **love** you!"
-// });

@@ -156,3 +156,77 @@ exports.updatePassword = async (req, res) => {
 ```
 
 In this last piece of functionality, we are retreiving the `user` data from the previous middleware, and then setting the password to the new entry, just as we had when we originally `.save`d the user. In order to clear data fields from MongoDB, we have to set the desired fields to `undefined` and then save those changes. Once we're done with that, we can call `.login` thanks to Passport.js, and then redirect the user to the homepage, just so they don't have to sign in twice for no reason.
+
+---
+
+## Sending Email in Node
+
+There's a lot of technical stuff that goes into sending Email, specifically the templating, credentials, inlining, and dynamic addresses to which you'll have to send them. For **development** purposes, atleast the credentials part can be taken care of via something like _MailTrap_. Once you've created an account, _MailTrap_ gives you the credentials to set up the `HOST`, `PORT`, `USER`, and `PASS` for sending mail, without actually sending it. These sort of variables should be taken care of in your `.env` file.
+
+We will handle all our mail setup and templating in a seperate file as a handler (ex. `./handlers/mail.js`). In this file, we will be important the required libraries, setting up the mailer config, and generating the HTML template.
+
+```js
+const nodemailer = require("nodemailer"); //Sends the email
+const pug = require("pug"); //Compiles the template
+const juice = require("juice"); //Inlines the CSS
+const htmlToText = require("html-to-text"); //Converts Email HTML to text
+const promisify = require("es6-promisify"); //Converts Callbacks to ES6 Promises
+
+//Create the nodemailer 'sender'
+const transport = nodemailer.createTransport({
+  host: process.env.MAIL_HOST,
+  port: process.env.MAIL_PORT,
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS
+  }
+});
+
+//Send an email
+exports.send = async options => {
+  const html = generateHTML(options.template, options);
+  const text = htmlToText.fromString(html);
+  const mailOptions = {
+    from: "Leander Rodrigues <noreply@leander.xyz>",
+    to: options.user.email,
+    subject: options.subject,
+    html,
+    text
+  };
+  //Convert the sendMail function response to a promise
+  const sendMail = promisify(transport.sendMail, transport);
+  return sendMail(mailOptions);
+};
+
+//Generate HTML via a template
+const generateHTML = (template, options = {}) => {
+  const html = pug.renderFile(
+    `${__dirname}/../views/email/${template}.pug`,
+    options
+  );
+  const inlined = juice(html);
+  return inlined;
+};
+```
+
+_Note:_ You will want to keep all the senstive server data in your environment file, and reference them as shown, and remember, if you clone a repo with code like this in it, you need to declare your own variables in order for it to work.
+
+You might also notice that `generateHTML` isn't actually exported like we usually do for handlers. This is because this function is only ever going to be used locally, so we don't have to export it!
+
+The code itself is pretty self explanatory, since not much is going on. All we need to do is `import` this javascript file and call `.send` on it with the correct options attached, and we'll successfully send the email! Here's the call we use in this app:
+
+```js
+const mail = require("./handlers/mail");
+const resetURL = `http://${req.headers.host}/account/reset/${
+  user.resetPasswordToken
+}`;
+mail.send({
+  user,
+  resetURL,
+  subject: "Password Reset",
+  template: "password-reset" //References a template name
+});
+req.flash("success", `You have been sent a password reset link.`);
+```
+
+---

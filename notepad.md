@@ -19,3 +19,17 @@ obj.loc.coords = [45.789234, -135.123456];
 console.log(obj.loc.coords && obj.loc.coords.length); //--> 2
 console.log(obj.loc.coords.length); //--> 2
 ```
+
+At any point in a node script, you can use the variable `__dirname` which will reference the folder file location in which the call is being made. This is useful for grabbing templates, images, or other files from other relative locations, as seen in the following example.
+
+```js
+//Generate HTML via a template
+const generateHTML = (template, options = {}) => {
+  const html = pug.renderFile(
+    `${__dirname}/../views/email/${template}.pug`,
+    options
+  );
+  const inlined = juice(html);
+  return inlined;
+};
+```
