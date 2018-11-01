@@ -211,7 +211,7 @@ const generateHTML = (template, options = {}) => {
 
 _Note:_ You will want to keep all the senstive server data in your environment file, and reference them as shown, and remember, if you clone a repo with code like this in it, you need to declare your own variables in order for it to work.
 
-You might also notice that `generateHTML` isn't actually exported like we usually do for handlers. This is because this function is only ever going to be used locally, so we don't have to export it!
+You might also notice that `generateHTML` isn't actuddddddally exported like we usually do for handlers. This is because this function is only ever going to be used locally, so we don't have to export it!
 
 The code itself is pretty self explanatory, since not much is going on. All we need to do is `import` this javascript file and call `.send` on it with the correct options attached, and we'll successfully send the email! Here's the call we use in this app:
 
@@ -230,3 +230,74 @@ req.flash("success", `You have been sent a password reset link.`);
 ```
 
 ---
+
+## User Permssions
+
+In order to create _User Permissions_ to restrict content, or access to certain features on our content, we first need to create a relationship between the two. That means, whenever we have data to limit access to, we need to specify (at creation time) who can or cannot make changes to it. This can be via declaring User Levels:
+
+```js
+//Our User
+user.level = 25;
+
+//Our Content's Schema
+...
+text: String,
+accessLevel: Number
+
+//Our Content
+const content = await new Content({accessLevel: 20}).save()
+
+//Logic
+if (user.level >= content.accessLevel) ...
+```
+
+You could also use different titles for different users:
+
+```js
+//Our User
+user.title = 'Admin';
+
+//Our Content's Schema
+...
+text: String,
+accessTitle: String
+
+//Our Content
+const content = await new Content({accessTitle: 'Manager'}).save()
+
+//Logic
+if (user.title === content.accessTitle || 'Admin') ...
+```
+
+And lastly, the way it's been done for this app, is through authorship:
+
+```js
+//Our User
+user;
+
+//Our Content's Schema
+...
+text: String,
+author: {
+  type: mongoose.Schema.ObjectId,
+  ref: 'User' //References the User schema in our database
+}
+
+//Our Content
+const content = await new Content({}).save()
+
+//Logic
+if (content.author.equals(user._id)) ...
+```
+
+The first two examples showed restricting access through implicit relationships, since both schemas contain a field with related data, which can be used to restrict access. The last example showed an explicit relationship, which directly links the data of that `User` to the `Content` on its creation via the `ref` property.
+
+This property can be pretty useful since `mongoose` can use it to easily gather the data from the `User` schema via the method `.populate()`.
+
+```js
+console.log(JSON.stringify(content.author));
+// ft6789olkmnbdewe45678ygjhyui  --> the ObjectId of the user
+
+console.log(JSON.stringify(content.populate("author").author));
+// {_id: 'ft6789olkmnbdewe45678ygjhyui', name: '...', email: '...'} --> replaces the ObjectId with the associated document
+```
