@@ -43,6 +43,11 @@ const storeSchema = new mongoose.Schema({
   }
 });
 
+//Define our indexes
+//We've indexed these fields into a 'compound index'
+//This will let us search through both fields at once
+storeSchema.index({ name: "text", description: "text" });
+
 storeSchema.pre("save", async function(next) {
   //Skip it and stop this function
   if (!this.isModified("name")) return next();

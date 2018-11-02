@@ -133,3 +133,24 @@ exports.updateStore = async (req, res) => {
   );
   res.redirect(`/stores/${store._id}/edit`);
 };
+
+exports.searchStores = async (req, res) => {
+  const stores = await Store
+    //Find stores that match the query
+    .find(
+      {
+        $text: {
+          $search: req.query.q
+        }
+      },
+      //Create a projection
+      { score: { $meta: "textScore" } }
+    )
+    //Sort them by the projection
+    .sort({
+      score: { $meta: "textScore" }
+    })
+    //Limit to only five results
+    .limit(5);
+  res.json(stores);
+};
