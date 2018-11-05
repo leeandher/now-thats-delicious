@@ -49,7 +49,7 @@ const storeSchema = new mongoose.Schema({
 storeSchema.index({ name: "text", description: "text" });
 
 storeSchema.pre("save", async function(next) {
-  //Skip it and stop this function
+  //If the name hasn't been changed, skip it and stop this function
   if (!this.isModified("name")) return next();
 
   //Create the slug
