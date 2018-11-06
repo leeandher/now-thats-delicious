@@ -47,6 +47,7 @@ const storeSchema = new mongoose.Schema({
 //We've indexed these fields into a 'compound index'
 //This will let us search through both fields at once
 storeSchema.index({ name: "text", description: "text" });
+storeSchema.index({location: '2dsphere'})
 
 storeSchema.pre("save", async function(next) {
   //If the name hasn't been changed, skip it and stop this function

@@ -154,3 +154,32 @@ exports.searchStores = async (req, res) => {
     .limit(5);
   res.json(stores);
 };
+
+exports.mapStores = async (req, res) => {
+  //MongoDB uses coordinates as [longitude, latitude]
+  const coordinates = [req.query.lng, req.query.lat].map(parseFloat);
+
+  //Using MongoDB operators to do calculations
+  const q = {
+    location: {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates
+        },
+        $maxDistance: 10000 //10km
+      }
+    }
+  };
+
+  //Limit the overhead content in the AJAX request
+  const stores = await Store.find(q)
+    .select("name slug description location")
+    .limit(10);
+
+  res.json(stores);
+};
+
+exports.mapPage = (req, res) => {
+  res.render("map", { title: "Map" });
+};
