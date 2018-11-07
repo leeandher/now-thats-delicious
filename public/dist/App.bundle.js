@@ -2744,6 +2744,9 @@ function loadPlaces(map) {
     //Create the bounds
     var bounds = new google.maps.LatLngBounds();
 
+    //Create the info window
+    var infoWindow = new google.maps.InfoWindow();
+
     //Create the pins on the map
     var markers = places.map(function (place) {
       var _place$location$coord = _slicedToArray(place.location.coordinates, 2),
@@ -2761,6 +2764,15 @@ function loadPlaces(map) {
       return marker;
     });
 
+    //Show info window on each marker (on click event)
+    markers.forEach(function (marker) {
+      return marker.addListener("click", function () {
+        var html = "\n        <div class=\"popup\">\n          <a href=\"/stores/" + this.place.slug + "\">\n            <img src=\"/uploads/" + (this.place.photo || "store.png") + "\" alt=\"" + this.place.name + "\"/>\n            <p>" + this.place.name + " - " + this.place.location.address + "</p>\n            </a>\n          </div>\n        ";
+        infoWindow.setContent(html);
+        infoWindow.open(map, this);
+      });
+    });
+
     //Now use the bounds to zoom and center the map
     map.setCenter(bounds.getCenter());
     map.fitBounds(bounds);
@@ -2775,6 +2787,10 @@ function makeMap(mapDiv) {
 
   var input = (0, _bling.$)('[name="geolocate"]');
   var autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.addListener("place_changed", function () {
+    var place = autocomplete.getPlace();
+    loadPlaces(map, place.geometry.location.lat(), place.geometry.location.lng());
+  });
 }
 
 exports.default = makeMap;

@@ -16,6 +16,9 @@ function loadPlaces(map, lat = 43.2, lng = -79.8) {
     //Create the bounds
     const bounds = new google.maps.LatLngBounds();
 
+    //Create the info window
+    const infoWindow = new google.maps.InfoWindow();
+
     //Create the pins on the map
     const markers = places.map(place => {
       const [placeLng, placeLat] = place.location.coordinates;
@@ -29,6 +32,24 @@ function loadPlaces(map, lat = 43.2, lng = -79.8) {
       marker.place = place;
       return marker;
     });
+
+    //Show info window on each marker (on click event)
+    markers.forEach(marker =>
+      marker.addListener("click", function() {
+        const html = `
+        <div class="popup">
+          <a href="/stores/${this.place.slug}">
+            <img src="/uploads/${this.place.photo || "store.png"}" alt="${
+          this.place.name
+        }"/>
+            <p>${this.place.name} - ${this.place.location.address}</p>
+            </a>
+          </div>
+        `;
+        infoWindow.setContent(html);
+        infoWindow.open(map, this);
+      })
+    );
 
     //Now use the bounds to zoom and center the map
     map.setCenter(bounds.getCenter());
@@ -44,6 +65,14 @@ function makeMap(mapDiv) {
 
   const input = $('[name="geolocate"]');
   const autocomplete = new google.maps.places.Autocomplete(input);
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
+    loadPlaces(
+      map,
+      place.geometry.location.lat(),
+      place.geometry.location.lng()
+    );
+  });
 }
 
 export default makeMap;

@@ -174,7 +174,7 @@ exports.mapStores = async (req, res) => {
 
   //Limit the overhead content in the AJAX request
   const stores = await Store.find(q)
-    .select("name slug description location")
+    .select("name slug description location photo")
     .limit(10);
 
   res.json(stores);
