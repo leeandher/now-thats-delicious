@@ -14,6 +14,8 @@ An **Application Programming Interface (API)** is a technical way of describing 
 
 The type of API is referred to as **Representational State Transfer**, and it describes the set of constrains we use when using the API. In most cases, all you need to know is that any calls don't actually pass you the data itself, but rather a _representation_ of the data. You can then manipulate it however you like, and pass it back to the data base performing any of the HTTP CRUD (Create, Read Update, Delete) methods: `GET`, `POST`, `PUT`, `DELETE`, etc.
 
+---
+
 ## Creating Indexes for Querying
 
 When working with databasess asyncronously (AJAX) we always have to think about the time it would take to deliver our data to the user. If there is any way we can make that faster, we should look into it. Thankfully, most databases come built-in with a feature to make our querying that much faster. These are referred to as _indexes_.
@@ -114,5 +116,58 @@ The above object says that we're adding a new field called _score_ and we're goi
 ```
 
 Now what we've done is sort our data by which document has the highest `textScore`. Essentially, whichever has the most occurances of our key term, that one gets preference!
+
+---
+
+## Handling Geospatial Data
+
+In case we want to use MongoDB for location data queries, we can use the builtin `geospatial` to easily do so. Simply declare the index as you normally would, but this time, index the `Point` location as a `2dsphere`.
+
+```js
+//In Store.js
+storeSchema.index({ location: "2dsphere" });
+```
+
+Now we can use some special operators in through mongoose and MongoDB in order to perform some complicated math with our data. Checkout the following code, for a good example:
+
+```js
+exports.getNearby = async (req, res) => {
+  //Remember, [lng, lat] for MongoDB
+  const coordinates = [req.query.lng, req.query.lat];
+  const q = {
+    location: {
+      //Return results based on proximity to coordinates
+      $near: {
+        //Our data point
+        $geometry: {
+          type: "Point",
+          coordinates
+        },
+        //Limit results to within 10km of coordinates
+        $maxDistance: 10000
+      }
+    }
+  };
+};
+```
+
+Using queries and operators such as this, we can let our database handle the mapping and distance mathematics and just focus on building the project.
+
+---
+
+## Reducing Overhead
+
+When developing APIs, one big concern you must always make sure you take into account is whether or not the data being returned is all critical. To keep the requests fast, we generally index important fields, but the response itself can also be made faster by reducing the 'overhead'. This essentially means reducing the amount of data we are sending by trimming the object down to the essentials. Why send `name`, `description`, `age`, and `displayPicture` when all you need from the query is `email`? It's things like that.
+
+Since our mongoose methods return the document in it's entirety, we have to limit the return data ourselves. Thankfully the `.select()` method is perfect for this, as it allows you to specifiy the fields you either want or do not want returned from your query. Take this example.
+
+```js
+//This is a query for a user profile where we need some preliminary info
+//We can specify the exact fields we'd like via:
+const userProfile = await User.find(query).('name age bio photo')
+
+//Or instead, we can just specify what we DON'T want returned
+const altUserProfile = await User.find(query).('-email -hash -salt -settings -notes')
+```
 
 ---
