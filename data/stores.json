@@ -6,7 +6,7 @@
     "description": "Friendly atmosphere. Great selection of local brews. ",
     "author": "58c039018060197ca0b52d4c",
     "photo": "a10ca916-af2a-4a98-96a1-3e320df006f9.jpeg",
-    "tags": ["Wifi", "Open Late", "Vega", "Licensed"],
+    "tags": ["Wifi", "Open Late", "Vegetarian", "Licensed"],
     "created": "2017-03-08T17:04:19.860Z",
     "location": {
       "address": "Hamilton, ON, Canada",
@@ -21,7 +21,7 @@
     "description": "Amazing selection of everything sour, fermented and tart. ",
     "author": "58c039018060197ca0b52d4c",
     "photo": "0d3624fc-78ee-4297-8d15-e191b9775520.jpeg",
-    "tags": ["Vega"],
+    "tags": ["Vegetarian"],
     "created": "2017-03-08T17:05:50.134Z",
     "location": {
       "address": "King William Street, Hamilton, ON, Canada",
@@ -66,7 +66,7 @@
     "description": "Set in the revitalized James St. North neighbourhood, Berkeley North is a West Coast inspired restaurant located on historic King William Street in the heart of downtown Hamilton.\r\n",
     "author": "58c039018060197ca0b52d4c",
     "photo": "9f2fc898-56b9-47fd-8a78-1d43c1377dc8.jpeg",
-    "tags": ["Vega", "Licensed"],
+    "tags": ["Vegetarian", "Licensed"],
     "created": "2017-03-08T19:12:03.957Z",
     "location": {
       "address": "31 King William St, Hamilton, ON, Canada",
@@ -111,7 +111,7 @@
     "description": "Small-batch, from-scratch donuts available at select coffee shops on Thursdays, Fridays, and Saturdays.",
     "author": "58c039018060197ca0b52d4c",
     "photo": "a6b38a1d-38c3-47af-ae4c-0ab26d8edec3.jpeg",
-    "tags": ["Vega"],
+    "tags": ["Vegetarian"],
     "created": "2017-03-08T19:30:21.147Z",
     "location": {
       "address": "The Kitchen Collective, King Street East, Hamilton, ON, Canada",
@@ -153,10 +153,10 @@
     "_id": "58c05fd08060197ca0b52d5a",
     "slug": "green-bar",
     "name": "Green Bar",
-    "description": "Cheery counter-serve serving organic, health-conscious fare such as smoothies & simple vegan eats.\r\n",
+    "description": "Cheery counter-serve serving organic, health-conscious fare such as smoothies & simple Vegetariann eats.\r\n",
     "author": "58c039018060197ca0b52d4c",
     "photo": "7ea7c02c-9054-442a-9126-788bf3471499.jpeg",
-    "tags": ["Wifi", "Vega"],
+    "tags": ["Wifi", "Vegetarian"],
     "created": "2017-03-08T19:47:28.651Z",
     "location": {
       "address": "Green Bar, James Street North, Hamilton, ON, Canada",
@@ -201,7 +201,7 @@
     "description": "Counter-serve joint with an ever-changing selection of elevated soups, plus burgers & other fare.\r\n",
     "author": "58c039018060197ca0b52d4c",
     "photo": "7628c82c-66df-493c-ba5f-9237c6bc3516.jpeg",
-    "tags": ["Family Friendly", "Vega", "Licensed"],
+    "tags": ["Family Friendly", "Vegetarian", "Licensed"],
     "created": "2017-03-08T19:50:51.495Z",
     "location": {
       "address": "The Burnt Tongue, Cannon Street East, Hamilton, ON, Canada",
