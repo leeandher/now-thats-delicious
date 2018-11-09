@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const Review = mongoose.model("Review");
-const Store = mongoose.model("Store");
 
 exports.oneReviewPerStore = async (req, res, next) => {
   //1. Find all the review for this store
