@@ -6,7 +6,6 @@ node_modules/
 haters/
 
 variables.env
-resources.md
 
 /public/uploads/*.png
 /public/uploads/*.jpeg
