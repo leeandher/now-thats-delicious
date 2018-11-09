@@ -64,20 +64,27 @@ exports.createStore = async (req, res) => {
 };
 
 exports.getStores = async (req, res) => {
+  //Get the current page (or default to 0)
   const page = req.params.page || 1;
+  //Define our limit per page
   const limit = 6;
+  //Define how many we should skip
   const skip = page * limit - limit;
 
+  //Create the two promises
   const storesPromise = Store.find()
     .skip(skip)
     .limit(limit)
-    .sort({ created: "desc" });
+    .sort({ created: "desc" }); //Sort by the most recently created
   const countPromise = Store.count();
 
+  //Evaluate them in parallel
   const [stores, count] = await Promise.all([storesPromise, countPromise]);
 
+  //Evaluate our total pages
   const pages = Math.ceil(count / limit);
 
+  //If the user tries an exceedingly large page number
   if (!stores.length && skip) {
     req.flash(
       "info",
@@ -85,6 +92,8 @@ exports.getStores = async (req, res) => {
     );
     return res.redirect(`/stores/pages/${pages}`);
   }
+
+  //Render the page!
   res.render("stores", { title: "Stores", stores, page, pages, count });
 };
 

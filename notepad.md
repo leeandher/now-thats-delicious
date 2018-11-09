@@ -46,3 +46,57 @@ const generateHTML = (template, options = {}) => {
 The above is also a good example of limiting exports in your javascript. Since we don't ever need to access the `generateHTML` function, it is not exported, and instead declared within the file for internal use only. This should be used whenever functionality needs to happen within a controller/handler, but not externally, which is a security benefit, but also just helps maintain your codebase. You can think of these guys like your inner '_helper_' functions.
 
 ---
+
+Pageination can be easily implemented by just counting the results and spliting them up by the number you wish to show on the page. Calling these requests in parallel will negate any increases in loading time, and clean up your code too. 
+
+The code is pretty logical, so I invite you to take a look at it yourself, and read the comments for clarity.
+
+Here was the original, without pagination:
+
+```js
+//On the '/stores' route
+exports.getStores = async (req, res) => {
+  const stores = await Store.find()
+  res.render("stores", { title: "Stores", stores });
+};
+```
+
+Here's the pagination version:
+
+```js
+//On the '/stores' and '/stores/page/:page' route
+exports.getStores = async (req, res) => {
+  //Get the current page (or default to 0)
+  const page = req.params.page || 1;
+  //Define our limit per page
+  const limit = 6;
+  //Define how many we should skip
+  const skip = page * limit - limit;
+
+  //Create the two promises
+  const storesPromise = Store.find()
+    .skip(skip)
+    .limit(limit)
+    .sort({ created: "desc" }); //Sort by the most recently created
+  const countPromise = Store.count();
+
+  //Evaluate them in parallel
+  const [stores, count] = await Promise.all([storesPromise, countPromise]);
+
+  //Evaluate our total pages
+  const pages = Math.ceil(count / limit);
+
+  //If the user tries an exceedingly large page number
+  if (!stores.length && skip) {
+    req.flash(
+      "info",
+      `Hey, You asked for page ${page}, but I couldn't find it, so I put you on page ${pages}`
+    );
+    return res.redirect(`/stores/pages/${pages}`);
+  }
+
+  //Render the page!
+  res.render("stores", { title: "Stores", stores, page, pages, count });
+};
+```
+
