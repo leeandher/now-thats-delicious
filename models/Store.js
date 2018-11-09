@@ -94,7 +94,7 @@ storeSchema.statics.getTopStores = function() {
     { $match: { "reviews.1": { $exists: true } } },
     //3. Create the averageRating field
     {
-      /* IF ON MONGODB <3.2
+      /* IF ON MONGODB <v3.2
       $project: {
         //We have to specify the fields we want because $project removes all other data 
         photo: "$$ROOT.photo", //$$ROOT -> represents our original document
@@ -104,7 +104,7 @@ storeSchema.statics.getTopStores = function() {
       }
       */
 
-      //IF ON MONGODB >3.2, use $addFields -> Note: this returns excess data
+      //IF ON MONGODB >v3.2, use $addFields -> Note: this returns excess data
       $addFields: {
         averageRating: { $avg: "$reviews.rating" } //$ -> represents a field we've just made
       }
