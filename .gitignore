@@ -6,7 +6,3 @@ node_modules/
 haters/
 
 *.env
-
-/public/uploads/*.png
-/public/uploads/*.jpeg
-/public/uploads/*.jpg
