@@ -194,9 +194,13 @@ exports.mapPage = (req, res) => {
   res.render("map", { title: "Map" });
 };
 
+//When the user 'hearts' a store
 exports.heartStore = async (req, res) => {
+  //Get their list of hearts
   const hearts = req.user.hearts.map(obj => obj.toString());
+  //Decide whether to add/remove this stroe
   const operator = hearts.includes(req.params.id) ? "$pull" : "$addToSet";
+  //Update
   const userHearts = await User.findOneAndUpdate(
     { _id: req.user._id },
     {

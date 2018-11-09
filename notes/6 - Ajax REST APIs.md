@@ -171,3 +171,56 @@ const altUserProfile = await User.find(query).('-email -hash -salt -settings -no
 ```
 
 ---
+
+## Instant Feedback APIs
+
+When developing applications, there are many instances in which the user wants immediate feedback on an action they take without having to have their page reload. This is what happens when you 'like' a post/page or leave a comment on a website. Since you can see the change immediately, this event needs to be handled in the frontend and backend to ensure the data works for both. Structurally, the backend makes the change, and the front-end verifies that it worked to show the user the change, they are not independent.
+
+First we can take a look at the backend and see how we'd develop some controller to handle a _toggle_ API (like a button we can both 'like' and 'unlike' with). We just have to make the operation depend on the existing state of the database, as shown:
+
+```js
+//When the user 'hearts' a store
+exports.heartStore = async (req, res) => {
+  //Get their list of hearts
+  const hearts = req.user.hearts.map(obj => obj.toString());
+  //Decide whether to add/remove this stroe
+  const operator = hearts.includes(req.params.id) ? "$pull" : "$addToSet";
+  //Update
+  const userHearts = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    {
+      [operator]: { hearts: req.params.id }
+    },
+    { new: true }
+  ).select("hearts");
+  res.json(userHearts);
+};
+```
+
+Now this change doesn't render a new page or anything, instead we just pass data back to the user, making sure to add `{ new: true }` so we ensure the new data is being sent. When we receive this update in the frontend, we can use it to change classes, or dynamically update content to visually show the user the action was successful. Here we can see the API handling going on in the frontend:
+
+```js
+function ajaxHeart(e) {
+  e.preventDefault();
+  axios
+    .post(this.action)
+    .then(res => {
+      //Checks the button for the 'hearted' class
+      const isHearted = this.heart.classList.toggle("heart__button--hearted");
+      $(".heart-count").textContent = res.data.hearts.length;
+    })
+    .catch(console.error);
+```
+If the response is successful, we're going to toggle the class, and update the counter with the number of 'hearts' in the array. This `POST` action might seem odd coming from a button, but this is actually a useful trick to ensure that even if a user doesn't have JavaScript turned on, or something goes wrong, the button can still act as a form:
+
+```pug
+//- ...
+if user
+  .store__action.store__action--heart
+    form.heart(method="POST" action=`/api/stores/${store._id}/heart`)
+      - const heartStrings = user.hearts.map(obj => obj.toString())
+      - const heartClass = heartStrings.includes(store._id.toString()) ? 'heart__button--hearted': ''
+      button.heart__button(type="submit" name="heart" class=heartClass)
+        !=h.icon('heart')
+//- ...
+```
