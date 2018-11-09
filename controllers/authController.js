@@ -54,7 +54,7 @@ exports.forgot = async (req, res) => {
   const resetURL = `http://${req.headers.host}/account/reset/${
     user.resetPasswordToken
   }`;
-  mail.send({
+  await mail.send({
     user,
     resetURL,
     subject: "Password Reset",
