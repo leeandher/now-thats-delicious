@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Review = mongoose.model("Review");
+const Store = mongoose.model("Store");
 
 exports.oneReviewPerStore = async (req, res, next) => {
   //1. Find all the review for this store
@@ -25,6 +26,6 @@ exports.createReview = async (req, res) => {
   await new Review(req.body).save();
 
   //3. Tell the user
-  req.flash("success", `Thanks for reviewing ${store.name}`);
+  req.flash("success", `😋 Thanks for leaving a review! 😋`);
   res.redirect("back");
 };

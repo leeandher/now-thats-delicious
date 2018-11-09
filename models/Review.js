@@ -25,4 +25,14 @@ const reviewSchema = new mongoose.Schema({
   }
 });
 
+//Define our hook
+function autopopulate(next) {
+  this.populate("author");
+  next();
+}
+
+//Automatically populate author before 'find' and 'findOne'
+reviewSchema.pre("find", autopopulate);
+reviewSchema.pre("findOne", autopopulate);
+
 module.exports = mongoose.model("Review", reviewSchema);

@@ -73,4 +73,10 @@ storeSchema.statics.getTagsList = function() {
   ]); //output --> an array of tag objects sorted from most used to least
 };
 
+storeSchema.virtual("reviews", {
+  ref: "Review", //Which model to JOIN with
+  localField: "_id", //Which field on THIS model
+  foreignField: "store" //Which field on THAT model
+});
+
 module.exports = mongoose.model("Store", storeSchema);
