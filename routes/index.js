@@ -76,6 +76,7 @@ router.post(
 );
 
 router.get("/map", storeController.mapPage);
+router.get("/top", catchErrors(storeController.getTopStores));
 
 router.post(
   "/reviews/:id",

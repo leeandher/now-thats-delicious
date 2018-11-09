@@ -2,6 +2,7 @@ mixin storeCard(store = {})
   .store
     .store__hero
       .store__actions
+        //- Heart icon
         if user
           .store__action.store__action--heart
             form.heart(method="POST" action=`/api/stores/${store._id}/heart`)
@@ -9,10 +10,17 @@ mixin storeCard(store = {})
               - const heartClass = heartStrings.includes(store._id.toString()) ? 'heart__button--hearted': ''
               button.heart__button(type="submit" name="heart" class=heartClass)
                 !=h.icon('heart')
+        //- Edit icon
         if user && store.author.equals(user._id)
           .store__action.store__action--edit
             a(href=`/stores/${store._id}/edit`)
               != h.icon('pencil')
+        //- Reviews icon
+        if store.reviews
+          .store__action.store__action--count
+            a(href=`/stores/${store.slug}/#reviews`)
+              != h.icon('review')
+              span= store.reviews.length
       img(src=`/uploads/${store.photo || 'store.png'}`)
       h2.title 
         a(href=`/stores/${store.slug}`) #{store.name}

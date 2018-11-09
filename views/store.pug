@@ -4,7 +4,6 @@ include mixins/_reviewForm
 include mixins/_review
 
 block content
-  pre=h.dump(store.reviews)
   .single
     .single__hero
       img.single__image(src=`/uploads/${store.photo || 'store.png'}`, alt=store.name)
@@ -24,8 +23,8 @@ block content
     if user
       +reviewForm(store)
 
-    if store.reviews
-      .reviews
+    .reviews#reviews
+      if store.reviews
         each r in store.reviews
           .review
             +review(r)

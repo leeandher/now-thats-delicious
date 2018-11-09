@@ -758,6 +758,9 @@ label {
   .store__action svg {
     width: 25px;
     fill: white; }
+  .store__action span {
+    color: white;
+    font-weight: bold; }
   .store__action--edit a {
     border-bottom: 0; }
 
@@ -767,7 +770,7 @@ label {
   text-align: right; }
   .store__hero:before {
     display: block;
-    content: '';
+    content: "";
     position: absolute;
     height: 100%;
     width: 100%;
