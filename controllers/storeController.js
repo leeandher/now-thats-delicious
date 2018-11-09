@@ -98,6 +98,15 @@ exports.getStoresByTag = async (req, res, next) => {
   res.render("tag", { title: "Tags", tags, tag, stores });
 };
 
+exports.getStoresByHearts = async (req, res, next) => {
+  const stores = await Store.find({
+    _id: {
+      $in: req.user.hearts
+    }
+  });
+  res.render("stores", { title: "Hearted Stores", stores });
+};
+
 const confirmOwner = (store, user) => {
   return store.author.equals(user._id);
   //Throwing an error will stop the request as well

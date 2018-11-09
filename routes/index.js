@@ -54,6 +54,12 @@ router.post("/login", authController.login);
 router.get("/account", authController.isLoggedIn, userController.account);
 router.post("/account", catchErrors(userController.updateAccount));
 
+router.get(
+  "/hearts",
+  authController.isLoggedIn,
+  catchErrors(storeController.getStoresByHearts)
+);
+
 //Handle password reset
 router.post("/account/forgot", catchErrors(authController.forgot));
 router.get(
