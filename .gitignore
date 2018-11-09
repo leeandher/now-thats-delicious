@@ -5,7 +5,7 @@ node_modules/
 
 haters/
 
-variables.env
+*.env
 
 /public/uploads/*.png
 /public/uploads/*.jpeg
