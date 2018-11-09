@@ -10,6 +10,7 @@ const { catchErrors } = require("../handlers/errorHandlers");
 //Homepage and /stores render all stores
 router.get("/", catchErrors(storeController.getStores));
 router.get("/stores", catchErrors(storeController.getStores));
+router.get("/stores/page/:page", catchErrors(storeController.getStores));
 //Navigating to /add
 router.get("/add", authController.isLoggedIn, storeController.addStore);
 //Posting to create a store on /add
