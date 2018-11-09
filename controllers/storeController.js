@@ -75,7 +75,6 @@ exports.getStoreBySlug = async (req, res, next) => {
     "author"
   );
   //2. If no store was found, skip to error handling
-  console.log("finding the store", JSON.stringify(store));
   if (!store) return next();
   //3. Render the store page
   res.render("store", { title: store.name, store });
