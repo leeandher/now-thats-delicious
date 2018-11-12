@@ -1,4 +1,4 @@
-require("dotenv").config({ path: __dirname + "/../variables.env" });
+require("dotenv").config({ path: __dirname + "/../settings-dev.env" });
 const fs = require("fs");
 
 const mongoose = require("mongoose");
