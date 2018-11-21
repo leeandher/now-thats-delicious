@@ -86,28 +86,6 @@ router.post(
   catchErrors(reviewController.createReview)
 );
 
-router.get(
-  '/thisisatest',
-  (req, res) => {
-    const AWS = require('aws-sdk')
-    const s3 = new AWS.S3();
-
-
-const params = {
-  Bucket:'now-thats-delicious-leeandher',
-  Key: 'uploads/0d3624fc-78ee-4297-8d15-e191b9775520.jpeg'
-}
-let obj
-s3.getObject(params, function(err, data) {
-  if (err) console.log(err, err.stack);
-  else {
-    obj = data.Body.toString('base64');
-    console.log(obj)
-    res.send(`<img src="data:image/png;base64, ${obj}"/>`)
-  }
-})
-  }
-)
 /*
     API
 */
