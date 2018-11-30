@@ -9,8 +9,8 @@ if (major < 7 || (major === 7 && minor <= 5)) {
   process.exit();
 }
 
-// import environmental variables from our variables.env file
-require("dotenv").config({ path: "variables.env" });
+// import environmental variables from our settings-dev.env file
+require("dotenv").config({ path: "settings-dev.env" });
 
 // Connect to our Database and handle any bad connections
 mongoose.connect(process.env.DATABASE);
