@@ -46,10 +46,9 @@ exports.resize = async (req, res, next) => {
   const photo = await jimp.read(req.file.buffer);
   await photo.resize(800, jimp.AUTO);
 
+  //Attach the photo data to the response
   res.locals.uploadPhoto = await photo.getBufferAsync(req.file.mimetype);
 
-  console.log(res.locals.uploadPhoto);
-  //Once the resize has been saved, keep going
   next();
 };
 

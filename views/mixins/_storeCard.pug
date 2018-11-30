@@ -21,7 +21,7 @@ mixin storeCard(store = {})
             a(href=`/stores/${store.slug}/#reviews`)
               != h.icon('review')
               span= store.reviews.length
-      img(src=`/uploads/${store.photo || 'store.png'}`)
+      img(src=`${store.photo ? h.getImageUrl(store.photo) :'/uploads/store.png'}`)
       h2.title 
         a(href=`/stores/${store.slug}`) #{store.name}
     .store__details
