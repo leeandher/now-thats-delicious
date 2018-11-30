@@ -16,7 +16,7 @@
   },
   "browserslist": "last 3 versions",
   "dependencies": {
-    "aws-sdk": "^2.353.0",
+    "aws-sdk": "^2.367.0",
     "axios": "0.15.3",
     "body-parser": "^1.18.3",
     "connect-flash": "0.1.1",

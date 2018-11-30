@@ -16,15 +16,17 @@ router.get("/add", authController.isLoggedIn, storeController.addStore);
 //Posting to create a store on /add
 router.post(
   "/add",
-  storeController.upload,
+  storeController.handleUpload,
   catchErrors(storeController.resize),
+  catchErrors(storeController.uploadToS3),
   catchErrors(storeController.createStore)
 );
 //Updating a store through /stores/:id/edit
 router.post(
   "/add/:id",
-  storeController.upload,
+  storeController.handleUpload,
   catchErrors(storeController.resize),
+  catchErrors(storeController.uploadToS3),
   catchErrors(storeController.updateStore)
 );
 //Show the existing store page

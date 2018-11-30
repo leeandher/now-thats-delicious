@@ -22,22 +22,26 @@ exports.staticMap = ([lng, lat]) =>
 exports.icon = name => fs.readFileSync(`./public/images/icons/${name}.svg`);
 
 // getting an image from an s3 bucket
-exports.getImage = uuid => {
-  const AWS = require('aws-sdk')
+exports.getImage = async uuid => {
+  const AWS = require("aws-sdk");
   const s3 = new AWS.S3();
 
-  s3.getObject({
-    Bucket: process.env.IMG_S3_BUCKET_NAME,
-    Key: `uploads/${uuid}.jpeg`
-  }, (err, data) => {
-    if (err) console.log(err, err.stack);
-    else {
-      //`<img src="data:image/png;base64, ${data.Body.toString('base64')}"/>`
-      return `data:image/png;base64, ${data.Body.toString('base64')}`;
+  await s3.getObject(
+    {
+      Bucket: process.env.IMG_S3_BUCKET_NAME,
+      Key: `uploads/${uuid}`
+    },
+    (err, data) => {
+      if (err) return;
+      // console.log(err, err.stack);
+      else {
+        console.log(data);
+        //`<img src="data:image/png;base64, ${data.Body.toString('base64')}"/>`
+        return `data:image/png;base64, ${data.Body.toString("base64")}`;
+      }
     }
-  })
-}
-
+  );
+};
 
 // Some details about the site
 exports.siteName = `Now That's Delicious!`;

@@ -6,6 +6,9 @@ const multer = require("multer"); //For uploading
 const jimp = require("jimp"); //For resizing
 const uuid = require("uuid"); //For generating unique IDs
 
+const AWS = require("aws-sdk");
+const promisify = require("es6-promisify");
+
 const multerOptions = {
   //Save the image to memory, not disk (use then discard)
   storage: multer.memoryStorage(),
@@ -32,7 +35,7 @@ exports.addStore = (req, res) => {
 };
 
 //Handle upload on the single, 'photo' field
-exports.upload = multer(multerOptions).single("photo");
+exports.handleUpload = multer(multerOptions).single("photo");
 
 exports.resize = async (req, res, next) => {
   //Check if there is no new file to resize
@@ -43,8 +46,32 @@ exports.resize = async (req, res, next) => {
   //Next step, resize
   const photo = await jimp.read(req.file.buffer);
   await photo.resize(800, jimp.AUTO);
-  await photo.write(`./public/uploads/${req.body.photo}`);
+
+  res.locals.uploadPhoto = await photo.getBufferAsync(req.file.mimetype);
+
+  console.log(res.locals.uploadPhoto);
   //Once the resize has been saved, keep going
+  next();
+};
+
+exports.uploadToS3 = async (req, res, next) => {
+  //If no photo is coming with the request
+  if (!res.locals.uploadPhoto) return next();
+
+  const s3 = new AWS.S3();
+  console.log("writing ....");
+  // const s3upload = promisify();
+  const response = await s3
+    .putObject({
+      Body: res.locals.uploadPhoto,
+      Bucket: process.env.IMG_S3_BUCKET_NAME,
+      Key: `uploads/${req.body.photo}`
+    })
+    .promise();
+  console.log(response);
+  // .then(data => console.log("written to db!", data))
+  // .catch(err => console.log(err, err.stack));
+
   next();
 };
 
