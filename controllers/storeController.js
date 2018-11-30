@@ -7,7 +7,6 @@ const jimp = require("jimp"); //For resizing
 const uuid = require("uuid"); //For generating unique IDs
 
 const AWS = require("aws-sdk");
-const promisify = require("es6-promisify");
 
 const multerOptions = {
   //Save the image to memory, not disk (use then discard)
@@ -55,22 +54,20 @@ exports.resize = async (req, res, next) => {
 };
 
 exports.uploadToS3 = async (req, res, next) => {
-  //If no photo is coming with the request
+  //If no photo is coming with the request, skip ahead
   if (!res.locals.uploadPhoto) return next();
 
   const s3 = new AWS.S3();
-  console.log("writing ....");
-  // const s3upload = promisify();
-  const response = await s3
-    .putObject({
-      Body: res.locals.uploadPhoto,
-      Bucket: process.env.IMG_S3_BUCKET_NAME,
-      Key: `uploads/${req.body.photo}`
-    })
-    .promise();
-  console.log(response);
-  // .then(data => console.log("written to db!", data))
-  // .catch(err => console.log(err, err.stack));
+
+  //Upload the resized image to the S3 Bucket
+  s3.putObject({
+    Body: res.locals.uploadPhoto,
+    Bucket: process.env.IMG_S3_BUCKET_NAME,
+    Key: `uploads/${req.body.photo}`
+  })
+    .promise()
+    .then(data => console.log("Image has been uploaded to S3 successfully!"))
+    .catch(err => console.log(err, err.stack));
 
   next();
 };
