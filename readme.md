@@ -6,7 +6,7 @@ I also recorded some notes while going through the development process which you
 
 Since it's hosted on a free-tier heroku dyno, it might take about 25-30 seconds for it's initial spin up! These free server instances fall asleep after 30 min of inactivity 😅😅😅!
 
-**_Note:_ Since Google's API pricing for Maps has recently gone up, most of its functionality in this app has been removed from the demo site. That is the location prediction, lat/lon autofill, and the geographic interpolation on the /map page**
+**_Note:_ Since Google's API pricing for Maps has recently gone up, most of its functionality in this app has been removed from the demo site. That is the location prediction, lat/lon autofill, and the static/dynamic maps on store**
 
 ## Using the app
 
