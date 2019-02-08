@@ -6,8 +6,6 @@ I also recorded some notes while going through the development process which you
 
 Since it's hosted on a free-tier heroku dyno, it might take about 25-30 seconds for it's initial spin up! These free server instances fall asleep after 30 min of inactivity 😅😅😅!
 
-**_Note:_ Since Google's API pricing for Maps has recently gone up, most of its functionality in this app has been removed from the demo site. That is the location prediction, lat/lon autofill, and the static/dynamic maps on store**
-
 ## Using the app
 
 Haven't you ever wanted a place to keep track of your favourite local eateries? Well this app is just for you! Upon launch, you'll be greeted a bunch of _stores_ that've been uploaded by other users. The descriptions, images, reviews, and locations are all specified by the user.
